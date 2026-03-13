@@ -76,7 +76,9 @@ fun DashboardScreen(onNavigateToSelection: () -> Unit) {
     var hasAccessibilityPermission by remember { mutableStateOf(checkAccessibilityPermission(context)) }
     var isAdminActive by remember { mutableStateOf(checkAdminActive(context)) }
     var hasOverlayPermission by remember { mutableStateOf(checkOverlayPermission(context)) }
-    
+    var isBatteryOptimized by remember { mutableStateOf(checkBatteryOptimization(context)) }
+    var hasNotificationPermission by remember { mutableStateOf(checkNotificationPermission(context)) }
+
     var isActive by remember { mutableStateOf(prefs.getBoolean("is_active", false)) }
     var sessionEndTime by remember { mutableLongStateOf(prefs.getLong("session_end_time", 0L)) }
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -90,6 +92,8 @@ fun DashboardScreen(onNavigateToSelection: () -> Unit) {
             hasAccessibilityPermission = checkAccessibilityPermission(context)
             isAdminActive = checkAdminActive(context)
             hasOverlayPermission = checkOverlayPermission(context)
+            isBatteryOptimized = checkBatteryOptimization(context)
+            hasNotificationPermission = checkNotificationPermission(context)
             isActive = prefs.getBoolean("is_active", false)
             sessionEndTime = prefs.getLong("session_end_time", 0L)
             currentTime = System.currentTimeMillis()
@@ -107,7 +111,7 @@ fun DashboardScreen(onNavigateToSelection: () -> Unit) {
         }
     }
 
-    val permissionsGranted = hasUsageStatsPermission && hasAccessibilityPermission && isAdminActive && hasOverlayPermission
+    val permissionsGranted = hasUsageStatsPermission && hasAccessibilityPermission && isAdminActive && hasOverlayPermission && isBatteryOptimized && hasNotificationPermission
 
     Column(
         modifier = Modifier
@@ -160,7 +164,7 @@ fun DashboardScreen(onNavigateToSelection: () -> Unit) {
 
         // MIDDLE SECTION
         if (!permissionsGranted) {
-            SetupCard(context, hasAccessibilityPermission, hasUsageStatsPermission, isAdminActive, hasOverlayPermission)
+            SetupCard(context, hasAccessibilityPermission, hasUsageStatsPermission, isAdminActive, hasOverlayPermission, hasNotificationPermission)
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -264,7 +268,7 @@ fun DashboardScreen(onNavigateToSelection: () -> Unit) {
 }
 
 @Composable
-fun SetupCard(context: Context, hasAccessibility: Boolean, hasUsage: Boolean, isAdmin: Boolean, hasOverlay: Boolean) {
+fun SetupCard(context: Context, hasAccessibility: Boolean, hasUsage: Boolean, isAdmin: Boolean, hasOverlay: Boolean, hasNotification: Boolean = checkNotificationPermission(context)) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -297,6 +301,21 @@ fun SetupCard(context: Context, hasAccessibility: Boolean, hasUsage: Boolean, is
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
+            if (!hasNotification) {
+                Button(onClick = { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A3A3A))) {
+                    Text("Grant Notification Access", color = Color.White)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            if (!checkBatteryOptimization(context)) {
+                Button(onClick = {
+                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, android.net.Uri.parse("package:${context.packageName}"))
+                    context.startActivity(intent)
+                }, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A3A3A))) {
+                    Text("Ignore Battery Optimization", color = Color.White)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
             if (!isAdmin) {
                 Button(onClick = {
                     val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
@@ -309,6 +328,16 @@ fun SetupCard(context: Context, hasAccessibility: Boolean, hasUsage: Boolean, is
             }
         }
     }
+}
+
+fun checkNotificationPermission(context: Context): Boolean {
+    val listeners = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+    return listeners != null && listeners.contains(context.packageName)
+}
+
+fun checkBatteryOptimization(context: Context): Boolean {
+    val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+    return powerManager.isIgnoringBatteryOptimizations(context.packageName)
 }
 
 fun checkOverlayPermission(context: Context): Boolean {

@@ -73,17 +73,20 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
 
         val packagesToCheck = listOf(activeRootPackage, eventPackage).filter { it.isNotBlank() }.distinct()
 
-        // 0. Prevent Direct Uninstallation (but do NOT block Settings)
-        val uninstallerPackages = listOf(
+        // 0. Prevent Tampering & Uninstallation (Only during active session)
+        val sensitivePackages = listOf(
             "com.google.android.packageinstaller", 
             "com.android.packageinstaller", 
-            "com.samsung.android.packageinstaller"
+            "com.samsung.android.packageinstaller",
+            "com.android.settings",
+            "com.samsung.android.settings.accessibility",
+            "com.miui.securitycenter"
         )
-        if (packagesToCheck.any { it in uninstallerPackages }) {
+        if (packagesToCheck.any { it in sensitivePackages }) {
             val nodesToSearch = listOfNotNull(rootInActiveWindow, event.source)
             for (node in nodesToSearch) {
                 if (scanForTampering(node)) {
-                    logAndBlock("Uninstaller", "UNINSTALL_ATTEMPT")
+                    logAndBlock("Settings/Uninstaller", "UNINSTALL_ATTEMPT")
                     return
                 }
             }
@@ -184,8 +187,10 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
         val text = node.text?.toString()?.lowercase() ?: ""
         val contentDesc = node.contentDescription?.toString()?.lowercase() ?: ""
         
+        // Block interaction with Strict Blocker settings, and prevent Date/Time manipulation
         if (text.contains("strict blocker") || contentDesc.contains("strict blocker") || 
-            text.contains("strict blocker engine") || contentDesc.contains("strict blocker engine")) {
+            text.contains("strict blocker engine") || contentDesc.contains("strict blocker engine") ||
+            text == "date and time" || text == "date & time" || text == "set time") {
             return true
         }
 
