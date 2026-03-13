@@ -87,8 +87,12 @@ fun AppSelectionList(viewModel: BlockerViewModel) {
     val pm = context.packageManager
 
     val installedApps = remember {
-        pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            .filter { it.flags and ApplicationInfo.FLAG_SYSTEM == 0 }
+        val intent = android.content.Intent(android.content.Intent.ACTION_MAIN, null).apply {
+            addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+        }
+        pm.queryIntentActivities(intent, 0)
+            .map { it.activityInfo.applicationInfo }
+            .distinctBy { it.packageName }
             .sortedBy { it.loadLabel(pm).toString() }
     }
     val blockedApps by viewModel.blockedApps.collectAsState()

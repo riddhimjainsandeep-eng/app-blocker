@@ -73,6 +73,22 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
 
         val packagesToCheck = listOf(activeRootPackage, eventPackage).filter { it.isNotBlank() }.distinct()
 
+        // 0. Prevent Direct Uninstallation (but do NOT block Settings)
+        val uninstallerPackages = listOf(
+            "com.google.android.packageinstaller", 
+            "com.android.packageinstaller", 
+            "com.samsung.android.packageinstaller"
+        )
+        if (packagesToCheck.any { it in uninstallerPackages }) {
+            val nodesToSearch = listOfNotNull(rootInActiveWindow, event.source)
+            for (node in nodesToSearch) {
+                if (scanForTampering(node)) {
+                    logAndBlock("Uninstaller", "UNINSTALL_ATTEMPT")
+                    return
+                }
+            }
+        }
+
         // 1. App Blocking
         for (pkg in packagesToCheck) {
             if (blockedApps.any { it.packageName == pkg }) {
@@ -162,6 +178,24 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             if (found != null) return found
         }
         return null
+    }
+
+    private fun scanForTampering(node: AccessibilityNodeInfo): Boolean {
+        val text = node.text?.toString()?.lowercase() ?: ""
+        val contentDesc = node.contentDescription?.toString()?.lowercase() ?: ""
+        
+        if (text.contains("strict blocker") || contentDesc.contains("strict blocker") || 
+            text.contains("strict blocker engine") || contentDesc.contains("strict blocker engine")) {
+            return true
+        }
+
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i) ?: continue
+            if (scanForTampering(child)) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun scanNodesForKeywords(node: AccessibilityNodeInfo, currentPackage: String): Boolean {
