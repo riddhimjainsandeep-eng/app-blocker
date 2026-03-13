@@ -110,8 +110,10 @@ fun AppSelectionList(viewModel: BlockerViewModel) {
                     Checkbox(
                         checked = isBlocked,
                         onCheckedChange = { checked ->
-                            if (checked) viewModel.addApp(packageName, label)
-                            else viewModel.removeApp(packageName, label)
+                            if (checked) {
+                                viewModel.addApp(packageName, label)
+                            }
+                            // Do nothing if unchecked to prevent easy undo
                         }
                     )
                 },
@@ -146,7 +148,7 @@ fun UrlSelectionList(viewModel: BlockerViewModel) {
                 Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary)
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
@@ -160,19 +162,13 @@ fun UrlSelectionList(viewModel: BlockerViewModel) {
                         )
                     },
                     headlineContent = { Text(url.url) },
-                    trailingContent = {
-                        IconButton(onClick = { viewModel.removeUrl(url.url) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
-                        }
-                    },
                     colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
                     modifier = Modifier.clip(RoundedCornerShape(12.dp)).padding(vertical = 4.dp)
-                    )
-                    }
-                    }
-                    }
-                    }
-
+                )
+            }
+        }
+    }
+}
                     @OptIn(ExperimentalMaterial3Api::class)
                     @Composable
                     fun KeywordSelectionList(viewModel: BlockerViewModel) {
