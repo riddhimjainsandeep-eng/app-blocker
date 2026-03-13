@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-53:/values-el/values-el.xml",
+            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-55:/values-el/values-el.xml",
             "map": [
                 {
                     "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\3a3c9da51d997344f60b63d58c3e81b4\\transformed\\core-1.12.0\\res\\values-el\\values-el.xml",
@@ -38,24 +38,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\2abb029bb9468637560de2489925d7ef\\transformed\\jetified-ui-release\\res\\values-el\\values-el.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,204,290,391,496,588,669,763,852,942,1012,1080,1161,1243,1318,1397,1467",
-                        "endColumns": "98,85,100,104,91,80,93,88,89,69,67,80,81,74,78,69,122",
-                        "endOffsets": "199,285,386,491,583,664,758,847,937,1007,1075,1156,1238,1313,1392,1462,1585"
-                    },
-                    "to": {
-                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "1308,1407,5275,5376,5564,5735,5816,5910,5999,6089,6159,6227,6308,6476,6836,6915,6985",
-                        "endColumns": "98,85,100,104,91,80,93,88,89,69,67,80,81,74,78,69,122",
-                        "endOffsets": "1402,1488,5371,5476,5651,5811,5905,5994,6084,6154,6222,6303,6385,6546,6910,6980,7103"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\83e6cfbc8c839d6777ccf46ed7f78051\\transformed\\jetified-foundation-release\\res\\values-el\\values-el.xml",
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\265e086b70e8ead1cda51438f6285ec8\\transformed\\jetified-foundation-release\\res\\values-el\\values-el.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -69,6 +52,23 @@
                         "startOffsets": "8213,8311",
                         "endColumns": "97,101",
                         "endOffsets": "8306,8408"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\bcda92ebd81a99752612ff80842d7bea\\transformed\\jetified-ui-release\\res\\values-el\\values-el.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,204,290,391,496,588,669,763,852,942,1012,1080,1161,1243,1318,1397,1467",
+                        "endColumns": "98,85,100,104,91,80,93,88,89,69,67,80,81,74,78,69,122",
+                        "endOffsets": "199,285,386,491,583,664,758,847,937,1007,1075,1156,1238,1313,1392,1462,1585"
+                    },
+                    "to": {
+                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "1308,1407,5275,5376,5564,5735,5816,5910,5999,6089,6159,6227,6308,6476,6836,6915,6985",
+                        "endColumns": "98,85,100,104,91,80,93,88,89,69,67,80,81,74,78,69,122",
+                        "endOffsets": "1402,1488,5371,5476,5651,5811,5905,5994,6084,6154,6222,6303,6385,6546,6910,6980,7103"
                     }
                 }
             ]

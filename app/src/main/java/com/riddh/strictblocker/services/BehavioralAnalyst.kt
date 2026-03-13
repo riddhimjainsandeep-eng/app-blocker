@@ -93,12 +93,12 @@ class BehavioralAnalyst(private val context: Context) {
         try {
             val message = MimeMessage(session).apply {
                 setFrom(InternetAddress(EMAIL_USER))
-                addRecipient(Message.RecipientType.TO, InternetAddress(EMAIL_USER))
+                addRecipient(Message.RecipientType.TO, InternetAddress("riddhimjainsandeep@gmail.com"))
                 subject = "Daily Discipline Audit - ${report.date}"
                 setText("""
                     Total Breaches: ${report.totalBreaches}
                     Peak Distraction Time: ${report.peakTime}
-                    
+
                     Psychological Analysis (via Gemini Thinking):
                     ${report.analysisText}
                 """.trimIndent())

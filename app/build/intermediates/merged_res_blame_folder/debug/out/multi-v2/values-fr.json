@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-53:/values-fr/values-fr.xml",
+            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-55:/values-fr/values-fr.xml",
             "map": [
                 {
                     "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\d88fbb5b4cde28fc7c4d3dea8e0d26e4\\transformed\\jetified-material3-1.1.2\\res\\values-fr\\values-fr.xml",
@@ -21,20 +21,20 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\2abb029bb9468637560de2489925d7ef\\transformed\\jetified-ui-release\\res\\values-fr\\values-fr.xml",
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\265e086b70e8ead1cda51438f6285ec8\\transformed\\jetified-foundation-release\\res\\values-fr\\values-fr.xml",
                     "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,204,292,392,492,579,658,750,842,929,1000,1068,1149,1234,1310,1388,1457",
-                        "endColumns": "98,87,99,99,86,78,91,91,86,70,67,80,84,75,77,68,121",
-                        "endOffsets": "199,287,387,487,574,653,745,837,924,995,1063,1144,1229,1305,1383,1452,1574"
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,144",
+                        "endColumns": "88,94",
+                        "endOffsets": "139,234"
                     },
                     "to": {
-                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "1297,1396,5196,5296,5479,5643,5722,5814,5906,5993,6064,6132,6213,6385,6748,6826,6895",
-                        "endColumns": "98,87,99,99,86,78,91,91,86,70,67,80,84,75,77,68,121",
-                        "endOffsets": "1391,1479,5291,5391,5561,5717,5809,5901,5988,6059,6127,6208,6293,6456,6821,6890,7012"
+                        "startLines": "80,81",
+                        "startColumns": "4,4",
+                        "startOffsets": "8165,8254",
+                        "endColumns": "88,94",
+                        "endOffsets": "8249,8344"
                     }
                 },
                 {
@@ -55,20 +55,20 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\83e6cfbc8c839d6777ccf46ed7f78051\\transformed\\jetified-foundation-release\\res\\values-fr\\values-fr.xml",
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\bcda92ebd81a99752612ff80842d7bea\\transformed\\jetified-ui-release\\res\\values-fr\\values-fr.xml",
                     "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,144",
-                        "endColumns": "88,94",
-                        "endOffsets": "139,234"
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,204,292,392,492,579,658,750,842,929,1000,1068,1149,1234,1310,1388,1457",
+                        "endColumns": "98,87,99,99,86,78,91,91,86,70,67,80,84,75,77,68,121",
+                        "endOffsets": "199,287,387,487,574,653,745,837,924,995,1063,1144,1229,1305,1383,1452,1574"
                     },
                     "to": {
-                        "startLines": "80,81",
-                        "startColumns": "4,4",
-                        "startOffsets": "8165,8254",
-                        "endColumns": "88,94",
-                        "endOffsets": "8249,8344"
+                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "1297,1396,5196,5296,5479,5643,5722,5814,5906,5993,6064,6132,6213,6385,6748,6826,6895",
+                        "endColumns": "98,87,99,99,86,78,91,91,86,70,67,80,84,75,77,68,121",
+                        "endOffsets": "1391,1479,5291,5391,5561,5717,5809,5901,5988,6059,6127,6208,6293,6456,6821,6890,7012"
                     }
                 }
             ]

@@ -23,7 +23,6 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
     
     private var blockedApps = listOf<BlockedApp>()
     private var blockedUrls = listOf<BlockedUrl>()
-    private var blockedKeywords = listOf<BlockedKeyword>()
 
     private var lastBreachTime = 0L
     private var currentFrustrationCount = 0
@@ -52,7 +51,6 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             val db = BlockerDatabase.getDatabase(applicationContext).blockerDao()
             launch { db.getAllApps().collectLatest { blockedApps = it } }
             launch { db.getAllUrls().collectLatest { blockedUrls = it } }
-            launch { db.getAllKeywords().collectLatest { blockedKeywords = it } }
         }
     }
 
@@ -100,11 +98,11 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             }
         }
 
-        // Determine the best node to search for URLs and Keywords
+        // Determine the best node to search for URLs
         // rootInActiveWindow is usually best, but event.source is a fallback
         val nodesToSearch = listOfNotNull(rootInActiveWindow, event.source)
 
-        // 2. Aggressive URL & Keyword Sniffing
+        // 2. Aggressive URL Sniffing
         for (pkg in packagesToCheck) {
             val isBrowserOrGoogle = pkg.contains("chrome") || 
                                     pkg.contains("browser") || 
@@ -115,18 +113,14 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
                 for (node in nodesToSearch) {
                     val currentUrl = findUrlInNodes(node)
                     if (currentUrl != null) {
-                        if (blockedUrls.any { currentUrl.contains(it.url.lowercase()) }) {
+                        val cleanUrl = currentUrl.removePrefix("https://").removePrefix("http://")
+                        val host = cleanUrl.substringBefore("/")
+                        
+                        if (blockedUrls.any { host.contains(it.url.lowercase()) }) {
                             logAndBlock(currentUrl, "URL_DETECTED")
                             return
                         }
                     }
-                }
-            }
-
-            for (node in nodesToSearch) {
-                if (scanNodesForKeywords(node, pkg)) {
-                    logAndBlock(pkg, "KEYWORD")
-                    return
                 }
             }
         }
@@ -199,20 +193,6 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             if (scanForTampering(child)) {
                 return true
             }
-        }
-        return false
-    }
-
-    private fun scanNodesForKeywords(node: AccessibilityNodeInfo, currentPackage: String): Boolean {
-        val text = node.text?.toString()?.lowercase() ?: ""
-        for (kw in blockedKeywords) {
-            val k = kw.keyword
-            // Exact match or isolated word match, to avoid partial matches triggering false positives
-            if (text.isNotBlank() && (text == k || text.contains(" $k ") || text.startsWith("$k ") || text.endsWith(" $k"))) return true
-        }
-        for (i in 0 until node.childCount) {
-            val child = node.getChild(i) ?: continue
-            if (scanNodesForKeywords(child, currentPackage)) return true
         }
         return false
     }

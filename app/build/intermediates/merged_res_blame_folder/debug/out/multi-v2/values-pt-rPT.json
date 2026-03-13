@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-53:/values-pt-rPT/values-pt-rPT.xml",
+            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-55:/values-pt-rPT/values-pt-rPT.xml",
             "map": [
                 {
                     "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\d88fbb5b4cde28fc7c4d3dea8e0d26e4\\transformed\\jetified-material3-1.1.2\\res\\values-pt-rPT\\values-pt-rPT.xml",
@@ -21,7 +21,24 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\83e6cfbc8c839d6777ccf46ed7f78051\\transformed\\jetified-foundation-release\\res\\values-pt-rPT\\values-pt-rPT.xml",
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\bcda92ebd81a99752612ff80842d7bea\\transformed\\jetified-ui-release\\res\\values-pt-rPT\\values-pt-rPT.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,200,283,380,479,565,644,741,832,919,991,1060,1145,1235,1311,1387,1459",
+                        "endColumns": "94,82,96,98,85,78,96,90,86,71,68,84,89,75,75,71,121",
+                        "endOffsets": "195,278,375,474,560,639,736,827,914,986,1055,1140,1230,1306,1382,1454,1576"
+                    },
+                    "to": {
+                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "1305,1400,5209,5306,5487,5650,5729,5826,5917,6004,6076,6145,6230,6406,6763,6839,6911",
+                        "endColumns": "94,82,96,98,85,78,96,90,86,71,68,84,89,75,75,71,121",
+                        "endOffsets": "1395,1478,5301,5400,5568,5724,5821,5912,5999,6071,6140,6225,6315,6477,6834,6906,7028"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\265e086b70e8ead1cda51438f6285ec8\\transformed\\jetified-foundation-release\\res\\values-pt-rPT\\values-pt-rPT.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -52,23 +69,6 @@
                         "startOffsets": "573,670,772,871,971,1078,1184,6565",
                         "endColumns": "96,101,98,99,106,105,120,100",
                         "endOffsets": "665,767,866,966,1073,1179,1300,6661"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\2abb029bb9468637560de2489925d7ef\\transformed\\jetified-ui-release\\res\\values-pt-rPT\\values-pt-rPT.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,200,283,380,479,565,644,741,832,919,991,1060,1145,1235,1311,1387,1459",
-                        "endColumns": "94,82,96,98,85,78,96,90,86,71,68,84,89,75,75,71,121",
-                        "endOffsets": "195,278,375,474,560,639,736,827,914,986,1055,1140,1230,1306,1382,1454,1576"
-                    },
-                    "to": {
-                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "1305,1400,5209,5306,5487,5650,5729,5826,5917,6004,6076,6145,6230,6406,6763,6839,6911",
-                        "endColumns": "94,82,96,98,85,78,96,90,86,71,68,84,89,75,75,71,121",
-                        "endOffsets": "1395,1478,5301,5400,5568,5724,5821,5912,5999,6071,6140,6225,6315,6477,6834,6906,7028"
                     }
                 }
             ]

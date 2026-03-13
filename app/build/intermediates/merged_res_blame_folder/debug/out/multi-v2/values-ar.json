@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-53:/values-ar/values-ar.xml",
+            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-55:/values-ar/values-ar.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\2abb029bb9468637560de2489925d7ef\\transformed\\jetified-ui-release\\res\\values-ar\\values-ar.xml",
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\bcda92ebd81a99752612ff80842d7bea\\transformed\\jetified-ui-release\\res\\values-ar\\values-ar.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -18,23 +18,6 @@
                         "startOffsets": "1262,1351,5062,5157,5331,5490,5571,5677,5761,5842,5913,5980,6061,6224,6573,6649,6723",
                         "endColumns": "88,82,94,97,84,80,105,83,80,70,66,80,82,69,75,73,120",
                         "endOffsets": "1346,1429,5152,5250,5411,5566,5672,5756,5837,5908,5975,6056,6139,6289,6644,6718,6839"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\83e6cfbc8c839d6777ccf46ed7f78051\\transformed\\jetified-foundation-release\\res\\values-ar\\values-ar.xml",
-                    "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,139",
-                        "endColumns": "83,85",
-                        "endOffsets": "134,220"
-                    },
-                    "to": {
-                        "startLines": "80,81",
-                        "startColumns": "4,4",
-                        "startOffsets": "7974,8058",
-                        "endColumns": "83,85",
-                        "endOffsets": "8053,8139"
                     }
                 },
                 {
@@ -69,6 +52,23 @@
                         "startOffsets": "550,643,745,840,943,1046,1148,6375",
                         "endColumns": "92,101,94,102,102,101,113,100",
                         "endOffsets": "638,740,835,938,1041,1143,1257,6471"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\265e086b70e8ead1cda51438f6285ec8\\transformed\\jetified-foundation-release\\res\\values-ar\\values-ar.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,139",
+                        "endColumns": "83,85",
+                        "endOffsets": "134,220"
+                    },
+                    "to": {
+                        "startLines": "80,81",
+                        "startColumns": "4,4",
+                        "startOffsets": "7974,8058",
+                        "endColumns": "83,85",
+                        "endOffsets": "8053,8139"
                     }
                 }
             ]

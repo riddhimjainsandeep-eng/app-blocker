@@ -119,6 +119,27 @@ fun MorningAuditScreen(onDismiss: () -> Unit) {
                 Spacer(modifier = Modifier.height(48.dp))
                 
                 Button(
+                    onClick = {
+                        scope.launch {
+                            val analyst = com.riddh.strictblocker.services.BehavioralAnalyst(context)
+                            val newReport = analyst.generateDailyAudit()
+                            if (newReport != null) {
+                                android.widget.Toast.makeText(context, "Email report sent!", android.widget.Toast.LENGTH_SHORT).show()
+                            } else {
+                                android.widget.Toast.makeText(context, "No breaches to report!", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text("SEND EMAIL REPORT NOW")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp)

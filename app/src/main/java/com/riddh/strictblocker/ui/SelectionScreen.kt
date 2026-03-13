@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun SelectionScreen(viewModel: BlockerViewModel, onBack: () -> Unit) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Apps", "Websites", "Keywords")
+    val tabs = listOf("Apps", "Websites")
 
     Scaffold(
         topBar = {
@@ -75,7 +75,6 @@ fun SelectionScreen(viewModel: BlockerViewModel, onBack: () -> Unit) {
             when (selectedTab) {
                 0 -> AppSelectionList(viewModel)
                 1 -> UrlSelectionList(viewModel)
-                2 -> KeywordSelectionList(viewModel)
             }
         }
     }
@@ -152,54 +151,16 @@ fun UrlSelectionList(viewModel: BlockerViewModel) {
         LazyColumn {
             items(blockedUrls) { url ->
                 ListItem(
+                    leadingContent = {
+                        coil.compose.AsyncImage(
+                            model = "https://www.google.com/s2/favicons?domain=${url.url}&sz=64",
+                            contentDescription = "Favicon",
+                            modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
+                        )
+                    },
                     headlineContent = { Text(url.url) },
                     trailingContent = {
                         IconButton(onClick = { viewModel.removeUrl(url.url) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
-                        }
-                    },
-                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).padding(vertical = 4.dp)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun KeywordSelectionList(viewModel: BlockerViewModel) {
-    val blockedKeywords by viewModel.blockedKeywords.collectAsState()
-    var newKeyword by remember { mutableStateOf("") }
-
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextField(
-                value = newKeyword,
-                onValueChange = { newKeyword = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Enter keyword") },
-                singleLine = true,
-                colors = TextFieldDefaults.colors(unfocusedContainerColor = MaterialTheme.colorScheme.surface)
-            )
-            IconButton(onClick = { 
-                if (newKeyword.isNotBlank()) {
-                    viewModel.addKeyword(newKeyword.trim().lowercase())
-                    newKeyword = ""
-                }
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary)
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn {
-            items(blockedKeywords) { kw ->
-                ListItem(
-                    headlineContent = { Text(kw.keyword) },
-                    trailingContent = {
-                        IconButton(onClick = { viewModel.removeKeyword(kw.keyword) }) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete")
                         }
                     },

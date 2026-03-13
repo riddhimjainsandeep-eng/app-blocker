@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-53:/values-ca/values-ca.xml",
+            "outputFile": "com.riddh.strictblocker.app-mergeDebugResources-55:/values-ca/values-ca.xml",
             "map": [
                 {
                     "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\d88fbb5b4cde28fc7c4d3dea8e0d26e4\\transformed\\jetified-material3-1.1.2\\res\\values-ca\\values-ca.xml",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\83e6cfbc8c839d6777ccf46ed7f78051\\transformed\\jetified-foundation-release\\res\\values-ca\\values-ca.xml",
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\265e086b70e8ead1cda51438f6285ec8\\transformed\\jetified-foundation-release\\res\\values-ca\\values-ca.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -35,6 +35,23 @@
                         "startOffsets": "8158,8256",
                         "endColumns": "97,101",
                         "endOffsets": "8251,8353"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\bcda92ebd81a99752612ff80842d7bea\\transformed\\jetified-ui-release\\res\\values-ca\\values-ca.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,202,286,390,493,582,660,751,842,928,1000,1069,1155,1246,1322,1404,1475",
+                        "endColumns": "96,83,103,102,88,77,90,90,85,71,68,85,90,75,81,70,119",
+                        "endOffsets": "197,281,385,488,577,655,746,837,923,995,1064,1150,1241,1317,1399,1470,1590"
+                    },
+                    "to": {
+                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "1299,1396,5189,5293,5468,5640,5718,5809,5900,5986,6058,6127,6213,6386,6752,6834,6905",
+                        "endColumns": "96,83,103,102,88,77,90,90,85,71,68,85,90,75,81,70,119",
+                        "endOffsets": "1391,1475,5288,5391,5552,5713,5804,5895,5981,6053,6122,6208,6299,6457,6829,6900,7020"
                     }
                 },
                 {
@@ -52,23 +69,6 @@
                         "startOffsets": "568,664,766,865,962,1068,1173,6544",
                         "endColumns": "95,101,98,96,105,104,125,100",
                         "endOffsets": "659,761,860,957,1063,1168,1294,6640"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\riddh\\.gradle\\caches\\transforms-3\\2abb029bb9468637560de2489925d7ef\\transformed\\jetified-ui-release\\res\\values-ca\\values-ca.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,202,286,390,493,582,660,751,842,928,1000,1069,1155,1246,1322,1404,1475",
-                        "endColumns": "96,83,103,102,88,77,90,90,85,71,68,85,90,75,81,70,119",
-                        "endOffsets": "197,281,385,488,577,655,746,837,923,995,1064,1150,1241,1317,1399,1470,1590"
-                    },
-                    "to": {
-                        "startLines": "13,14,47,48,50,52,53,54,55,56,57,58,59,61,65,66,67",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "1299,1396,5189,5293,5468,5640,5718,5809,5900,5986,6058,6127,6213,6386,6752,6834,6905",
-                        "endColumns": "96,83,103,102,88,77,90,90,85,71,68,85,90,75,81,70,119",
-                        "endOffsets": "1391,1475,5288,5391,5552,5713,5804,5895,5981,6053,6122,6208,6299,6457,6829,6900,7020"
                     }
                 }
             ]
