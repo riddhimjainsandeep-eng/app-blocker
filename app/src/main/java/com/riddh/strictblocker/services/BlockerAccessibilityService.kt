@@ -23,6 +23,7 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
     
     private var blockedApps = listOf<BlockedApp>()
     private var blockedUrls = listOf<BlockedUrl>()
+    private var blockedKeywords = listOf<BlockedKeyword>()
 
     private var lastBreachTime = 0L
     private var currentFrustrationCount = 0
@@ -51,6 +52,7 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             val db = BlockerDatabase.getDatabase(applicationContext).blockerDao()
             launch { db.getAllApps().collectLatest { blockedApps = it } }
             launch { db.getAllUrls().collectLatest { blockedUrls = it } }
+            launch { db.getAllKeywords().collectLatest { blockedKeywords = it } }
         }
     }
 
@@ -81,12 +83,19 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             "com.miui.securitycenter"
         )
         if (packagesToCheck.any { it in sensitivePackages }) {
-            val nodesToSearch = listOfNotNull(rootInActiveWindow, event.source)
-            for (node in nodesToSearch) {
-                if (scanForTampering(node)) {
-                    logAndBlock("Settings/Uninstaller", "UNINSTALL_ATTEMPT")
-                    return
-                }
+            val allText = extractAllText(rootInActiveWindow).lowercase()
+            
+            // Only block Settings if they have actually opened the App Info page for Strict Blocker
+            val isStrictBlockerAppInfo = (allText.contains("strict blocker") || allText.contains("strict blocker engine")) && 
+                (allText.contains("force stop") || allText.contains("uninstall") || allText.contains("clear data") || allText.contains("storage"))
+            
+            // Also protect Date & Time settings from manipulation
+            val isDateTimeSettings = (allText.contains("date and time") || allText.contains("date & time") || allText.contains("set time")) && 
+                (allText.contains("automatic") || allText.contains("time zone"))
+
+            if (isStrictBlockerAppInfo || isDateTimeSettings || packagesToCheck.any { it.contains("packageinstaller") }) {
+                logAndBlock("Settings/Uninstaller", "UNINSTALL_ATTEMPT")
+                return
             }
         }
 
@@ -102,7 +111,7 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
         // rootInActiveWindow is usually best, but event.source is a fallback
         val nodesToSearch = listOfNotNull(rootInActiveWindow, event.source)
 
-        // 2. Aggressive URL Sniffing
+        // 2. Aggressive URL & Keyword Sniffing
         for (pkg in packagesToCheck) {
             val isBrowserOrGoogle = pkg.contains("chrome") || 
                                     pkg.contains("browser") || 
@@ -123,7 +132,26 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
                     }
                 }
             }
+
+            // Keyword detection (completely separate from URL detection)
+            for (node in nodesToSearch) {
+                if (scanNodesForKeywords(node, pkg)) {
+                    logAndBlock(pkg, "KEYWORD")
+                    return
+                }
+            }
         }
+    }
+
+    private fun extractAllText(node: AccessibilityNodeInfo?): String {
+        if (node == null) return ""
+        val text = StringBuilder()
+        if (node.text != null) text.append(node.text).append(" ")
+        if (node.contentDescription != null) text.append(node.contentDescription).append(" ")
+        for (i in 0 until node.childCount) {
+            text.append(extractAllText(node.getChild(i)))
+        }
+        return text.toString()
     }
 
     private fun logAndBlock(target: String, type: String) {
@@ -193,6 +221,20 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             if (scanForTampering(child)) {
                 return true
             }
+        }
+        return false
+    }
+
+    private fun scanNodesForKeywords(node: AccessibilityNodeInfo, currentPackage: String): Boolean {
+        val text = node.text?.toString()?.lowercase() ?: ""
+        for (kw in blockedKeywords) {
+            val k = kw.keyword
+            // Exact match or isolated word match, to avoid partial matches triggering false positives
+            if (text.isNotBlank() && (text == k || text.contains(" $k ") || text.startsWith("$k ") || text.endsWith(" $k"))) return true
+        }
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i) ?: continue
+            if (scanNodesForKeywords(child, currentPackage)) return true
         }
         return false
     }
