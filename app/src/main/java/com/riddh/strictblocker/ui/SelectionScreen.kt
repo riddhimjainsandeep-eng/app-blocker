@@ -169,47 +169,77 @@ fun UrlSelectionList(viewModel: BlockerViewModel) {
         }
     }
 }
-                    @OptIn(ExperimentalMaterial3Api::class)
-                    @Composable
-                    fun KeywordSelectionList(viewModel: BlockerViewModel) {
-                    val blockedKeywords by viewModel.blockedKeywords.collectAsState()
-                    var newKeyword by remember { mutableStateOf("") }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun KeywordSelectionList(viewModel: BlockerViewModel) {
+    val blockedKeywords by viewModel.blockedKeywords.collectAsState()
+    var newKeyword by remember { mutableStateOf("") }
+    var keywordToConfirm by remember { mutableStateOf<String?>(null) }
 
-                    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextField(
-                    value = newKeyword,
-                    onValueChange = { newKeyword = it },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("Enter keyword") },
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = MaterialTheme.colorScheme.surface)
-                    )
-                    IconButton(onClick = { 
+    if (keywordToConfirm != null) {
+        AlertDialog(
+            onDismissRequest = { keywordToConfirm = null },
+            title = { Text("Are you absolutely sure?") },
+            text = { Text("Once you add '${keywordToConfirm}', you cannot remove it. It will be permanently blocked.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    keywordToConfirm?.let {
+                        viewModel.addKeyword(it)
+                        newKeyword = ""
+                    }
+                    keywordToConfirm = null
+                }) {
+                    Text("YES, BLOCK IT", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { keywordToConfirm = null }) {
+                    Text("CANCEL", color = MaterialTheme.colorScheme.onSurface)
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+        )
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextField(
+                value = newKeyword,
+                onValueChange = { newKeyword = it },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Enter keyword to block") },
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(
+                onClick = { 
                     if (newKeyword.isNotBlank()) {
-                    viewModel.addKeyword(newKeyword.trim().lowercase())
-                    newKeyword = ""
+                        keywordToConfirm = newKeyword.trim().lowercase()
                     }
-                    }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary)
-                    }
-                    }
+                },
+                modifier = Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.onPrimary)
+            }
+        }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-                    LazyColumn {
-                    items(blockedKeywords) { kw ->
-                    ListItem(
-                    headlineContent = { Text(kw.keyword) },
-                    trailingContent = {
-                        IconButton(onClick = { viewModel.removeKeyword(kw.keyword) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
-                        }
-                    },
+        LazyColumn {
+            items(blockedKeywords) { kw ->
+                ListItem(
+                    headlineContent = { Text(kw.keyword, fontWeight = FontWeight.SemiBold) },
                     colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).padding(vertical = 4.dp)
-                    )
-                    }
-                    }
-                    }
-                    }
+                    modifier = Modifier.padding(vertical = 4.dp).clip(RoundedCornerShape(12.dp))
+                )
+            }
+        }
+    }
+}
