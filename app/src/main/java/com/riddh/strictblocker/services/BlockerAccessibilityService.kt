@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import com.riddh.strictblocker.BlockOverlayActivity
 import com.riddh.strictblocker.data.BlockerDatabase
 import com.riddh.strictblocker.data.BlockedApp
 import com.riddh.strictblocker.data.BlockedUrl
@@ -32,16 +31,12 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
     private var isActive = false
     private lateinit var prefs: SharedPreferences
 
+    private var emergencyOverlayView: android.view.View? = null
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         
-        // Programmatically set configuration to ensure the service runs aggressively
-        val info = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
-            feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-            flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS or AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
-            notificationTimeout = 150 // Throttle slightly to prevent OS from killing the service for event spam
-        }
+        // ... (existing code)
         serviceInfo = info
 
         prefs = getSharedPreferences("blocker_prefs", Context.MODE_PRIVATE)
@@ -53,6 +48,121 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
             launch { db.getAllApps().collectLatest { blockedApps = it } }
             launch { db.getAllUrls().collectLatest { blockedUrls = it } }
             launch { db.getAllKeywords().collectLatest { blockedKeywords = it } }
+        }
+
+        // Emergency Timer Monitor
+        serviceScope.launch(Dispatchers.Main) {
+            while (true) {
+                val timerEnd = prefs.getLong("emergency_timer_end", 0L)
+                val now = System.currentTimeMillis()
+                
+                if (timerEnd > 0 && now < timerEnd) {
+                    showEmergencyOverlay(timerEnd - now)
+                } else if (emergencyOverlayView != null) {
+                    removeEmergencyOverlay()
+                }
+                delay(1000)
+            }
+        }
+    }
+
+    private fun showEmergencyOverlay(remainingMillis: Long) {
+        if (emergencyOverlayView == null) {
+            windowManager = getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+            val params = android.view.WindowManager.LayoutParams(
+                android.view.WindowManager.LayoutParams.MATCH_PARENT,
+                android.view.WindowManager.LayoutParams.MATCH_PARENT,
+                android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
+                android.graphics.PixelFormat.TRANSLUCENT
+            )
+
+            val layout = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                gravity = android.view.Gravity.CENTER
+                setBackgroundColor(android.graphics.Color.parseColor("#1A1A1A"))
+                setPadding(64, 64, 64, 64)
+            }
+
+            emergencyOverlayView = layout
+            windowManager?.addView(emergencyOverlayView, params)
+        }
+
+        val layout = emergencyOverlayView as? android.widget.LinearLayout ?: return
+        layout.removeAllViews()
+
+        val seconds = (remainingMillis / 1000) % 60
+        val minutes = (remainingMillis / (1000 * 60)) % 60
+        val timeStr = String.format("%02d:%02d", minutes, seconds)
+
+        val timerText = android.widget.TextView(this).apply {
+            text = "Emergency Unlocking in\n$timeStr"
+            textSize = 32f
+            setTextColor(android.graphics.Color.WHITE)
+            gravity = android.view.Gravity.CENTER
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+        layout.addView(timerText)
+
+        // Study Progress
+        val startTime = prefs.getLong("session_start_time", 0L)
+        if (startTime > 0) {
+            val studyMillis = System.currentTimeMillis() - startTime
+            val studyHours = studyMillis / (1000 * 60 * 60)
+            val studyMins = (studyMillis / (1000 * 60)) % 60
+            
+            val progressText = android.widget.TextView(this).apply {
+                text = "\n\nYou have focused for ${studyHours}h ${studyMins}m today.\nDon't let it go to waste."
+                textSize = 16f
+                setTextColor(android.graphics.Color.GRAY)
+                gravity = android.view.Gravity.CENTER
+            }
+            layout.addView(progressText)
+        }
+
+        // CA Final Countdown
+        val examDate = prefs.getLong("ca_exam_date", 0L)
+        if (examDate > 0) {
+            val days = (examDate - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)
+            val examText = android.widget.TextView(this).apply {
+                text = "\n$days Days until CA Final Exam"
+                textSize = 18f
+                setTextColor(android.graphics.Color.parseColor("#CF6679"))
+                gravity = android.view.Gravity.CENTER
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            layout.addView(examText)
+        }
+
+        val cancelButton = android.widget.Button(this).apply {
+            text = "I AM OKAY NOW (CANCEL EXIT)"
+            setBackgroundColor(android.graphics.Color.parseColor("#4A90E2"))
+            setTextColor(android.graphics.Color.WHITE)
+            setOnClickListener {
+                prefs.edit().putLong("emergency_timer_end", 0L).apply()
+                removeEmergencyOverlay()
+            }
+        }
+        val btnParams = android.widget.LinearLayout.LayoutParams(
+            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { setMargins(0, 100, 0, 0) }
+        layout.addView(cancelButton, btnParams)
+        
+        // Redirect to home if they try to leave
+        val startMain = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(startMain)
+    }
+
+    private fun removeEmergencyOverlay() {
+        if (emergencyOverlayView != null) {
+            windowManager?.removeView(emergencyOverlayView)
+            emergencyOverlayView = null
         }
     }
 
@@ -84,16 +194,26 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
         )
         if (packagesToCheck.any { it in sensitivePackages }) {
             val allText = extractAllText(rootInActiveWindow).lowercase()
+            val className = event.className?.toString() ?: ""
             
-            // Only block Settings if they have actually opened the App Info page for Strict Blocker
-            val isStrictBlockerAppInfo = (allText.contains("strict blocker") || allText.contains("strict blocker engine")) && 
-                (allText.contains("force stop") || allText.contains("uninstall") || allText.contains("clear data") || allText.contains("storage"))
+            val isDeviceAdmin = className == "com.android.settings.DeviceAdminSettings" || 
+                                className == "com.android.settings.Settings\$DeviceAdminSettingsActivity" ||
+                                allText.contains("device admin") || 
+                                allText.contains("deactivate") || 
+                                allText.contains("device administrators")
+                                
+            val isAppInfoScreen = className == "com.android.settings.applications.InstalledAppDetailsTop" ||
+                                  (packagesToCheck.any { it.contains("com.android.settings") } && allText.contains("com.riddh.strictblocker"))
+
+            val isStrictBlockerAppInfo = isAppInfoScreen ||
+                allText.contains("com.riddh.strictblocker") ||
+                (allText.contains("strict blocker") && 
+                (allText.contains("force stop") || allText.contains("uninstall") || allText.contains("clear data") || allText.contains("storage")))
             
-            // Also protect Date & Time settings from manipulation
             val isDateTimeSettings = (allText.contains("date and time") || allText.contains("date & time") || allText.contains("set time")) && 
                 (allText.contains("automatic") || allText.contains("time zone"))
 
-            if (isStrictBlockerAppInfo || isDateTimeSettings || packagesToCheck.any { it.contains("packageinstaller") }) {
+            if (isStrictBlockerAppInfo || isDateTimeSettings || isDeviceAdmin || packagesToCheck.any { it.contains("packageinstaller") }) {
                 logAndBlock("Settings/Uninstaller", "UNINSTALL_ATTEMPT")
                 return
             }
@@ -175,26 +295,20 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
     }
 
     private fun findUrlInNodes(node: AccessibilityNodeInfo): String? {
-        val text = node.text?.toString() ?: ""
-        val contentDesc = node.contentDescription?.toString() ?: ""
+        val text = node.text?.toString()?.lowercase()?.trim() ?: ""
+        val contentDesc = node.contentDescription?.toString()?.lowercase() ?: ""
         val className = node.className?.toString() ?: ""
         
-        // Match anything that looks like a domain or has a dot and no spaces
-        if (className.contains("EditText") || node.isEditable) {
-            val potentialUrl = text.lowercase().trim()
-            if (potentialUrl.contains(".") && !potentialUrl.contains(" ") && potentialUrl.length > 3) {
-                return potentialUrl
+        // A valid URL/domain must contain a dot and have no spaces.
+        // This prevents search keywords (like "youtube") from being falsely flagged as URLs.
+        if (text.contains(".") && !text.contains(" ") && text.length > 3) {
+            val isAddressBar = className.contains("EditText") || node.isEditable
+            val hasUrlDesc = contentDesc.contains("address") || contentDesc.contains("url")
+            val isUrlFormat = text.matches(Regex("^(https?://)?([a-z0-9-]+\\.)+[a-z]{2,}(/.*)?$"))
+            
+            if (isAddressBar || hasUrlDesc || isUrlFormat) {
+                return text
             }
-        }
-        
-        // Also check Google App Custom Tab titles which might contain the domain
-        val isLikelyTitleOrUrl = contentDesc.lowercase().contains("address") || 
-                                 contentDesc.lowercase().contains("url") ||
-                                 text.lowercase().trim().contains(".")
-
-        if (isLikelyTitleOrUrl && !text.contains(" ")) {
-            val potentialUrl = text.lowercase().trim()
-            if (potentialUrl.isNotEmpty()) return potentialUrl
         }
 
         for (i in 0 until node.childCount) {
@@ -211,7 +325,6 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
         
         // Block interaction with Strict Blocker settings, and prevent Date/Time manipulation
         if (text.contains("strict blocker") || contentDesc.contains("strict blocker") || 
-            text.contains("strict blocker engine") || contentDesc.contains("strict blocker engine") ||
             text == "date and time" || text == "date & time" || text == "set time") {
             return true
         }
@@ -239,12 +352,53 @@ class BlockerAccessibilityService : AccessibilityService(), SharedPreferences.On
         return false
     }
 
+    private var overlayView: android.view.View? = null
+    private var windowManager: android.view.WindowManager? = null
+
     private fun launchBlockScreen() {
-        // Step 2: Launch the block overlay screen
-        val intent = Intent(this, BlockOverlayActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        if (overlayView != null) return
+        
+        windowManager = getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+        val params = android.view.WindowManager.LayoutParams(
+            android.view.WindowManager.LayoutParams.MATCH_PARENT,
+            android.view.WindowManager.LayoutParams.MATCH_PARENT,
+            android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+            android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
+            android.graphics.PixelFormat.TRANSLUCENT
+        )
+        
+        val linearLayout = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            gravity = android.view.Gravity.CENTER
+            setBackgroundColor(android.graphics.Color.parseColor("#121212"))
+            
+            val textView = android.widget.TextView(context).apply {
+                text = "Focus Mode Active\n\nTake a deep breath and return to your focus."
+                textSize = 24f
+                setTextColor(android.graphics.Color.WHITE)
+                gravity = android.view.Gravity.CENTER
+                setPadding(64, 64, 64, 64)
+            }
+            addView(textView)
         }
-        startActivity(intent)
+        
+        overlayView = linearLayout
+        windowManager?.addView(overlayView, params)
+        
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+            kotlinx.coroutines.delay(5000)
+            if (overlayView != null) {
+                windowManager?.removeView(overlayView)
+                overlayView = null
+            }
+        }
+        
+        val startMain = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(startMain)
     }
 
     override fun onInterrupt() {}

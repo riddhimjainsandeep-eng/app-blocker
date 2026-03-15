@@ -99,7 +99,7 @@ fun MorningAuditScreen(onDismiss: () -> Unit) {
                         }
                         
                         Spacer(modifier = Modifier.height(24.dp))
-                        Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                         Spacer(modifier = Modifier.height(24.dp))
                         
                         Text(
@@ -149,7 +149,13 @@ fun MorningAuditScreen(onDismiss: () -> Unit) {
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                TextButton(onClick = { /* Share logic */ }) {
+                TextButton(onClick = { 
+                    val sendIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(android.content.Intent.EXTRA_TEXT, "Audit Report: ${report?.analysisText}")
+                    }
+                    context.startActivity(android.content.Intent.createChooser(sendIntent, "Archive Report"))
+                }) {
                     Text("SEND TO ARCHIVE", color = MaterialTheme.colorScheme.secondary)
                 }
             }

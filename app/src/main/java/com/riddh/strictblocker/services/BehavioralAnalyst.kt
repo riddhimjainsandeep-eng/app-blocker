@@ -17,11 +17,11 @@ import javax.mail.internet.MimeMessage
 class BehavioralAnalyst(private val context: Context) {
 
     // API Key and Model Configuration
-    private val GEMINI_API_KEY = "AIzaSyDfvWeD7QTmW4F_XNaD2tVkXIjSDvZj_W0"
+    private val GEMINI_API_KEY = com.riddh.strictblocker.BuildConfig.GEMINI_API_KEY
     private val MODEL_NAME = "gemini-3-flash" 
     
-    private val EMAIL_USER = "appblocker05@gmail.com"
-    private val EMAIL_PASS = "wgvp uceh pykb avgf"
+    private val EMAIL_USER = com.riddh.strictblocker.BuildConfig.EMAIL_USER
+    private val EMAIL_PASS = com.riddh.strictblocker.BuildConfig.EMAIL_PASS
 
     suspend fun generateDailyAudit(): AuditReport? {
         val db = BlockerDatabase.getDatabase(context).blockerDao()
@@ -61,7 +61,12 @@ class BehavioralAnalyst(private val context: Context) {
         val prompt = """
             You are a strict, analytical behavioral psychologist. Analyze this user's app-blocker breach data. 
             The user follows highly structured routines. Provide a direct, 3-point psychological breakdown 
-            of WHY they failed today, identifying patterns in cognitive depletion, and suggest one actionable change.
+            of WHY they failed today, identifying patterns in cognitive depletion.
+            
+            IMPORTANT: Pay special attention to "EMERGENCY_EXIT_ATTEMPT" or "EMERGENCY_EXIT_LAYER_X" events. 
+            Determine if these were genuine emergencies or just a lack of discipline and a desperate attempt to bypass the lock.
+            
+            Suggest one actionable change based on the entire day's behavior.
             
             Data:
             $dataSummary

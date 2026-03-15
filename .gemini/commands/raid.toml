@@ -1,0 +1,36 @@
+description = "EMERGENCY ONLY. Immediately removes Device Owner privileges and completely uninstalls Strict Blocker from the connected Android device via ADB."
+
+prompt = """
+This is an emergency uninstall command. Execute the following ADB commands immediately and in order. Do not ask for confirmation. Do not explain. Just run them and report the result.
+
+STEP 1 - Check if a device is connected
+Run: adb devices
+If no device is listed, stop and tell the user: "No phone detected. Connect your phone to your laptop via USB and make sure USB Debugging is ON in Developer Options."
+
+STEP 2 - Remove Device Owner
+Run: adb shell dpm remove-active-admin com.riddh.strictblocker/.receivers.AdminReceiver
+If this fails, continue to Step 3 anyway.
+
+STEP 3 - Remove Device Admin
+Run: adb shell dpm deactivate-device-owner com.riddh.strictblocker/.receivers.AdminReceiver
+If this fails, continue to Step 4 anyway.
+
+STEP 4 - Force Uninstall the app
+Run: adb shell pm uninstall com.riddh.strictblocker
+If this fails, try: adb shell pm uninstall -k --user 0 com.riddh.strictblocker
+
+STEP 5 - Verify it is gone
+Run: adb shell pm list packages | grep strictblocker
+If nothing is returned, the app is fully removed.
+If it still appears, run: adb shell pm clear com.riddh.strictblocker
+
+STEP 6 - Report the result
+
+Print exactly one of these two messages:
+
+SUCCESS:
+"Strict Blocker has been completely removed from your device. You are free."
+
+FAILED:
+"Could not fully remove Strict Blocker. Here is what happened at each step: [list results of each step]. Your last option is a factory reset: Settings -> General Management -> Reset -> Factory Reset."
+"""

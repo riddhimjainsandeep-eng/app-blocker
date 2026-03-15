@@ -38,6 +38,25 @@ class BlockerForegroundService : Service() {
         return START_STICKY
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        restartService()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        restartService()
+    }
+
+    private fun restartService() {
+        val prefs = getSharedPreferences("blocker_prefs", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("is_active", false)) {
+            val broadcastIntent = Intent(this, com.riddh.strictblocker.receivers.BootReceiver::class.java)
+            broadcastIntent.action = "com.riddh.strictblocker.RESTART_SERVICE"
+            sendBroadcast(broadcastIntent)
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun createNotificationChannel() {

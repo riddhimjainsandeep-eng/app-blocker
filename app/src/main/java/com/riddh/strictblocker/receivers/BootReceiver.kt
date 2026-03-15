@@ -8,16 +8,24 @@ import com.riddh.strictblocker.services.BlockerForegroundService
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == "com.riddh.strictblocker.RESTART_SERVICE") {
             val prefs = context.getSharedPreferences("blocker_prefs", Context.MODE_PRIVATE)
             val endTime = prefs.getLong("session_end_time", 0L)
             
-            if (System.currentTimeMillis() < endTime) {
+            if (System.currentTimeMillis() < endTime || prefs.getBoolean("is_active", false)) {
                 val serviceIntent = Intent(context, BlockerForegroundService::class.java)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(serviceIntent)
-                } else {
-                    context.startService(serviceIntent)
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        context.startService(serviceIntent)
+                    }
+                } catch (e: Exception) {
+                    // Fallback to WorkManager if background starts are restricted
+                    val workRequest = androidx.work.OneTimeWorkRequestBuilder<com.riddh.strictblocker.services.SessionEndWorker>()
+                        .setInitialDelay(0, java.util.concurrent.TimeUnit.MILLISECONDS)
+                        .build()
+                    androidx.work.WorkManager.getInstance(context).enqueue(workRequest)
                 }
             }
         }

@@ -1,0 +1,140 @@
+description = "Directly applies all security, logic, and manifest fixes to the codebase files. Does not suggest. Edits files and reports what was changed at the end."
+
+prompt = """
+You are a senior Android developer. Your job is to directly edit and fix every issue in this codebase. Do not suggest fixes. Do not show diffs. Do not ask for confirmation. Just open each file, apply the fix, save it, and move on to the next one.
+
+IMPORTANT RULES:
+- You must EDIT the actual files directly. Do not print the fixed code and ask the user to copy it.
+- Do not ask "should I proceed?" or "would you like me to apply this?" Just do it.
+- Do not stop between fixes. Apply all fixes in one continuous run.
+- Only at the very end, print a summary of what you changed.
+
+STEP 1 - Read the entire codebase first
+Before making any changes, read all files:
+- app/src/main/AndroidManifest.xml
+- All .java and .kt files inside app/src/main/java/
+- All .xml files inside app/src/main/res/xml/
+- app/build.gradle or app/build.gradle.kts
+- Any file with Admin, Receiver, Service, Blocker, Block, or Overlay in the name
+
+STEP 2 - Apply every fix in this exact order
+
+FIX 1 - HARDCODED SECRETS
+- Open BehavioralAnalyst.kt or any file containing hardcoded API keys or passwords
+- Remove every hardcoded key and password
+- Replace them with BuildConfig references like BuildConfig.GEMINI_API_KEY
+- Save the file
+
+FIX 2 - BUILDCONFIG SETUP
+- Open app/build.gradle.kts
+- Add buildConfig = true inside the buildFeatures block
+- Add buildConfigField entries for GEMINI_API_KEY, EMAIL_USER, EMAIL_PASS using System.getenv()
+- Save the file
+
+FIX 3 - ALLOWBACKUP
+- Open AndroidManifest.xml
+- Find android:allowBackup="true"
+- Change it to android:allowBackup="false"
+- Save the file
+
+FIX 4 - FOREGROUND SERVICE PROPERTY FOR ANDROID 14
+- Open AndroidManifest.xml
+- Find the BlockerForegroundService service tag
+- If it is a self-closing tag like <service ... />, convert it to an open/close tag
+- Add this property inside it:
+  <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+            android:value="Strict anti-addiction monitoring and blocking"/>
+- Save the file
+
+FIX 5 - DEVICE ADMIN SCREEN DETECTION
+- Open BlockerAccessibilityService.kt
+- Find the section that checks for uninstall or force stop using English text strings
+- Add detection for Device Admin settings screen using class names:
+  com.android.settings.DeviceAdminSettings
+  com.android.settings.Settings$DeviceAdminSettingsActivity
+- Add detection for "device admin", "deactivate", "device administrators" text
+- Make sure this check fires even if the above English strings are not present
+- Save the file
+
+FIX 6 - ADMIN RECEIVER DEACTIVATION
+- Open AdminReceiver.kt
+- Find onDisableRequested()
+- Add dpm.lockNow() and a home screen redirect before returning the warning string
+- Save the file
+
+FIX 7 - ADMIN RECEIVER FALLBACK ON DISABLED
+- Open AdminReceiver.kt
+- Find onDisabled()
+- Add code to launch BlockOverlayActivity immediately when admin is disabled
+- Save the file
+
+FIX 8 - BATTERY DRAINING POLLING LOOP
+- Open MainActivity.kt
+- Find the while(true) loop inside LaunchedEffect
+- Replace it with a LifecycleEventObserver that only checks permissions on ON_RESUME
+- Save the file
+
+FIX 9 - SESSION EXPIRATION WITH WORKMANAGER
+- Open MainActivity.kt
+- Find where the session start logic sets session_end_time in SharedPreferences
+- After that block, add WorkManager scheduling using OneTimeWorkRequestBuilder with the delay until session end
+- Save the file
+
+FIX 10 - CREATE SESSIONENDWORKER FILE
+- Create a new file at app/src/main/java/com/riddh/strictblocker/services/SessionEndWorker.kt
+- Write a Worker class that on doWork() sets is_active to false, clears session_end_time, and stops BlockerForegroundService
+- Save the file
+
+FIX 11 - FOREGROUND SERVICE RESTART ON DESTROY
+- Open BlockerForegroundService.kt
+- Add onDestroy() that sends a broadcast to BootReceiver to restart the service
+- Add onTaskRemoved() that does the same
+- Only restart if is_active is true in SharedPreferences
+- Save the file
+
+FIX 12 - BLOCK OVERLAY USING WINDOWMANAGER
+- Open BlockerAccessibilityService.kt
+- Find launchBlockScreen() which uses startActivity() to launch BlockOverlayActivity
+- Replace it with a WindowManager overlay using TYPE_APPLICATION_OVERLAY
+- The overlay should show a dark screen with a focus message
+- It should auto-dismiss after 5 seconds
+- It should also redirect to home screen immediately
+- Save the file
+
+FIX 13 - BOOT RECEIVER CRASH PROTECTION
+- Open BootReceiver.kt
+- Find where startForegroundService is called
+- Wrap it in a try-catch block
+- In the catch block, schedule a WorkManager one-time task as a fallback
+- Save the file
+
+STEP 3 - After ALL fixes are applied, print this summary
+
+# Fix Application Complete
+Date: [today's date]
+
+## Files Modified
+List every file that was changed with one line describing what changed in it.
+
+## Files Created
+List every new file that was created.
+
+## Fixes Applied
+| Fix Number | Description | Status |
+|---|---|---|
+| Fix 1 | Hardcoded secrets removed | Done |
+| Fix 2 | BuildConfig setup | Done |
+| ... | ... | ... |
+
+## Fixes Skipped
+List any fix that was skipped and exactly why it was skipped.
+
+## What To Do Next
+1. Set your environment variables GEMINI_API_KEY, EMAIL_USER, EMAIL_PASS on your PC before building
+2. Remove all Google accounts from your phone
+3. Run: adb shell dpm set-device-owner com.riddh.strictblocker/.receivers.AdminReceiver
+4. Re-add your Google accounts
+5. Build and install the app
+6. Run: adb shell pm grant com.riddh.strictblocker android.permission.PACKAGE_USAGE_STATS
+7. Run: adb shell settings put secure enabled_accessibility_services com.riddh.strictblocker/com.riddh.strictblocker.services.BlockerAccessibilityService
+"""

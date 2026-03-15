@@ -11,11 +11,28 @@ class AdminReceiver : DeviceAdminReceiver() {
     }
 
     override fun onDisableRequested(context: Context, intent: Intent): CharSequence {
-        // Warning shown when user tries to disable it
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+        try {
+            dpm.lockNow()
+        } catch (e: SecurityException) {
+            // Fallback if not authorized to lock
+        }
+        
+        val startMain = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        context.startActivity(startMain)
+        
         return "Disabling this will compromise your focus session. Are you sure?"
     }
 
     override fun onDisabled(context: Context, intent: Intent) {
         Toast.makeText(context, "Device Admin Disabled.", Toast.LENGTH_SHORT).show()
+        val startMain = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        context.startActivity(startMain)
     }
 }

@@ -1,0 +1,126 @@
+description = "Reads the entire project and generates a complete, copy-paste ready project briefing. Use this whenever you need to explain your project to any AI chatbot, developer, or person."
+
+prompt = """
+You are a technical writer. Your job is to read this entire Android project and write a complete, structured project briefing that the developer can copy and paste into any AI chatbot or share with any developer to instantly bring them up to speed.
+
+The developer is a non-coder CA student who built this app using AI tools. The briefing must be written so that ANY AI or developer who reads it immediately understands:
+- What the app does
+- How it is built
+- What the current problems are
+- What has already been tried
+- What needs to be done next
+
+STEP 1 - Read everything
+Read ALL of these before writing anything:
+- app/src/main/AndroidManifest.xml
+- All .java and .kt files inside app/src/main/java/
+- All .xml files inside app/src/main/res/xml/
+- app/build.gradle or app/build.gradle.kts
+- Any README file if it exists
+- Any .md files in the project root
+- .gemini/commands/ folder to understand what agents exist
+
+STEP 2 - Write the briefing in this exact format
+
+---START OF PROJECT BRIEFING---
+
+# Project Briefing: [App Name]
+Generated on: [today's date]
+Copy and paste everything between the START and END markers into any AI chatbot.
+
+---
+
+## Who I Am
+I am a Chartered Accountant student and non-coder. I built this Android app using AI tools like Gemini CLI and Android Studio. I do not have a formal coding background but I understand the logic of what I want to build.
+
+## What This App Does
+[Write 3-5 sentences explaining the app in plain English. What problem does it solve? Who uses it? What makes it different?]
+
+## Tech Stack
+- Language: [Java / Kotlin / both]
+- Minimum Android Version: [from build.gradle]
+- Target Android Version: [from build.gradle]
+- Key Libraries: [list the important dependencies from build.gradle]
+- Build System: Gradle with Kotlin DSL
+- Architecture: [identify if it uses MVVM, MVC, or no clear pattern]
+
+## Project Structure
+List every important file with its full path and one sentence explaining what it does:
+
+### Core Files
+- [file path] — [what it does]
+- [file path] — [what it does]
+
+### Services
+- [file path] — [what it does]
+
+### Receivers
+- [file path] — [what it does]
+
+### Activities and UI
+- [file path] — [what it does]
+
+### Config and XML
+- [file path] — [what it does]
+
+## How the App Works — Step by Step
+Explain the complete flow of the app from when the user opens it to when it blocks an app:
+1. [first thing that happens]
+2. [second thing]
+... continue until the full flow is covered
+
+## Permissions the App Uses
+List every permission from the manifest and explain in plain English why the app needs it:
+- [permission name] — [why it is needed]
+
+## Key Features Already Built
+List every feature that is currently implemented and working:
+- [feature name] — [what it does]
+
+## Known Issues and Vulnerabilities
+List every known bug, security gap, or incomplete feature:
+- [issue name] — [what the problem is]
+
+## What Has Already Been Fixed
+List fixes that have been applied recently:
+- [fix name] — [what was done]
+
+## What Still Needs to Be Done
+List pending tasks in priority order:
+- [task] — [why it is important]
+
+## Agents and Tools I Use
+List the Gemini CLI agents available in this project:
+- /review — [what it does]
+- /fix — [what it does]
+- /debug — [what it does]
+- /refactor — [what it does]
+- /planner — [what it does]
+- /explain — [what it does]
+- /designer — [what it does]
+- /context — this agent, generates this briefing
+
+## Important Technical Details
+List any technical details that are critical for understanding the project:
+- Package name: [package name]
+- App name in Accessibility Settings: "Strict Blocker Engine"
+- Device Admin Receiver: [full class path]
+- Main Foreground Service: [full class path]
+- Accessibility Service: [full class path]
+
+## How to Help Me
+If you are an AI assistant reading this briefing, here is how to help me best:
+- I am not a coder so explain things in plain English
+- Always edit files directly, do not just suggest changes
+- Always tell me the exact file name and line number when referring to code
+- When giving me commands to run, give me the exact copy-paste command
+- If something will break other things, warn me before doing it
+
+---END OF PROJECT BRIEFING---
+
+STEP 3 - After writing the briefing, say this to the user:
+
+"Your project briefing is ready. Copy everything between the START and END markers and paste it at the beginning of any new chat with an AI assistant. This gives the AI complete context about your project instantly.
+
+Tip: Save this as a text file on your desktop called project-briefing.txt and update it by running /context whenever you make major changes to your app."
+"""

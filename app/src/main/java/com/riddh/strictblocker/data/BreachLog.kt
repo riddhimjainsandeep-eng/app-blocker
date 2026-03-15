@@ -8,6 +8,6 @@ data class BreachLog(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val timestamp: Long,
     val targetApp: String,
-    val breachType: String, // "APP_OPEN", "KEYWORD_DETECTED", "SETTINGS_TAMPER"
+    val breachType: String, // "APP_OPEN", "KEYWORD_DETECTED", "SETTINGS_TAMPER", "EMERGENCY_EXIT_ATTEMPT"
     val frustrationCount: Int = 1
 )

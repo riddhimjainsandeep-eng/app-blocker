@@ -40,7 +40,7 @@ fun SelectionScreen(viewModel: BlockerViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Forbidden Vault", style = MaterialTheme.typography.titleLarge) },
+                title = { Text("Forbidden Vault", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -59,13 +59,32 @@ fun SelectionScreen(viewModel: BlockerViewModel, onBack: () -> Unit) {
                 selectedTabIndex = selectedTab,
                 containerColor = MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.primary,
-                divider = {}
+                indicator = { tabPositions ->
+                    if (selectedTab < tabPositions.size) {
+                        TabRowDefaults.Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                            height = 3.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                divider = {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                }
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(title, fontSize = 14.sp) }
+                        text = { 
+                            Text(
+                                text = title, 
+                                fontSize = 15.sp,
+                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Medium,
+                                color = if (selectedTab == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            ) 
+                        },
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
             }
@@ -97,28 +116,44 @@ fun AppSelectionList(viewModel: BlockerViewModel) {
     }
     val blockedApps by viewModel.blockedApps.collectAsState()
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         items(installedApps) { app ->
             val packageName = app.packageName
             val label = app.loadLabel(pm).toString()
             val isBlocked = blockedApps.any { it.packageName == packageName }
 
-            ListItem(
-                headlineContent = { Text(label) },
-                supportingContent = { Text(packageName, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)) },
-                trailingContent = {
-                    Checkbox(
-                        checked = isBlocked,
-                        onCheckedChange = { checked ->
-                            if (checked) {
-                                viewModel.addApp(packageName, label)
-                            }
-                            // Do nothing if unchecked to prevent easy undo
-                        }
-                    )
-                },
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.background)
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(0.dp)
+            ) {
+                ListItem(
+                    headlineContent = { Text(label, fontWeight = FontWeight.Medium) },
+                    supportingContent = { Text(packageName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) },
+                    trailingContent = {
+                        Switch(
+                            checked = isBlocked,
+                            onCheckedChange = { checked ->
+                                if (checked) {
+                                    viewModel.addApp(packageName, label)
+                                }
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.background,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                uncheckedTrackColor = MaterialTheme.colorScheme.surface
+                            )
+                        )
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                )
+            }
         }
     }
 }
@@ -130,45 +165,63 @@ fun UrlSelectionList(viewModel: BlockerViewModel) {
     var newUrl by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextField(
-                value = newUrl,
-                onValueChange = { newUrl = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("domain (e.g. facebook.com)") },
-                singleLine = true,
-                colors = TextFieldDefaults.colors(unfocusedContainerColor = MaterialTheme.colorScheme.surface)
-            )
-            IconButton(onClick = { 
-                if (newUrl.isNotBlank()) {
-                    viewModel.addUrl(newUrl.trim().lowercase())
-                    newUrl = ""
+        OutlinedTextField(
+            value = newUrl,
+            onValueChange = { newUrl = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Enter domain (e.g. facebook.com)", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)) },
+            singleLine = true,
+            trailingIcon = {
+                IconButton(
+                    onClick = { 
+                        if (newUrl.isNotBlank()) {
+                            viewModel.addUrl(newUrl.trim().lowercase())
+                            newUrl = ""
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.AddCircle, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
                 }
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary)
-            }
-        }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+            ),
+            shape = RoundedCornerShape(16.dp)
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        LazyColumn {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
             items(blockedUrls) { url ->
-                ListItem(
-                    leadingContent = {
-                        coil.compose.AsyncImage(
-                            model = "https://www.google.com/s2/favicons?domain=${url.url}&sz=64",
-                            contentDescription = "Favicon",
-                            modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
-                        )
-                    },
-                    headlineContent = { Text(url.url) },
-                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).padding(vertical = 4.dp)
-                )
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(0.dp)
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            coil.compose.AsyncImage(
+                                model = "https://www.google.com/s2/favicons?domain=${url.url}&sz=128",
+                                contentDescription = "Favicon",
+                                modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
+                            )
+                        },
+                        headlineContent = { Text(url.url, fontWeight = FontWeight.Medium, fontSize = 16.sp) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    )
+                }
             }
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KeywordSelectionList(viewModel: BlockerViewModel) {
@@ -179,17 +232,20 @@ fun KeywordSelectionList(viewModel: BlockerViewModel) {
     if (keywordToConfirm != null) {
         AlertDialog(
             onDismissRequest = { keywordToConfirm = null },
-            title = { Text("Are you absolutely sure?") },
-            text = { Text("Once you add '${keywordToConfirm}', you cannot remove it. It will be permanently blocked.") },
+            title = { Text("Are you absolutely sure?", fontWeight = FontWeight.Bold) },
+            text = { Text("Once you add '${keywordToConfirm}', you cannot remove it. It will be permanently blocked to enforce discipline.") },
             confirmButton = {
-                TextButton(onClick = {
-                    keywordToConfirm?.let {
-                        viewModel.addKeyword(it)
-                        newKeyword = ""
-                    }
-                    keywordToConfirm = null
-                }) {
-                    Text("YES, BLOCK IT", color = MaterialTheme.colorScheme.error)
+                Button(
+                    onClick = {
+                        keywordToConfirm?.let {
+                            viewModel.addKeyword(it)
+                            newKeyword = ""
+                        }
+                        keywordToConfirm = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCF6679))
+                ) {
+                    Text("YES, BLOCK IT", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -198,47 +254,56 @@ fun KeywordSelectionList(viewModel: BlockerViewModel) {
                 }
             },
             containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            textContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+            shape = RoundedCornerShape(24.dp)
         )
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextField(
-                value = newKeyword,
-                onValueChange = { newKeyword = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Enter keyword to block") },
-                singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = { 
-                    if (newKeyword.isNotBlank()) {
-                        keywordToConfirm = newKeyword.trim().lowercase()
+        OutlinedTextField(
+            value = newKeyword,
+            onValueChange = { newKeyword = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Enter exact keyword to block", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)) },
+            singleLine = true,
+            trailingIcon = {
+                IconButton(
+                    onClick = { 
+                        if (newKeyword.isNotBlank()) {
+                            keywordToConfirm = newKeyword.trim().lowercase()
+                        }
                     }
-                },
-                modifier = Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.onPrimary)
-            }
-        }
+                ) {
+                    Icon(Icons.Default.AddCircle, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
+                }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+            ),
+            shape = RoundedCornerShape(16.dp)
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        LazyColumn {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
             items(blockedKeywords) { kw ->
-                ListItem(
-                    headlineContent = { Text(kw.keyword, fontWeight = FontWeight.SemiBold) },
-                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-                    modifier = Modifier.padding(vertical = 4.dp).clip(RoundedCornerShape(12.dp))
-                )
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(0.dp)
+                ) {
+                    ListItem(
+                        headlineContent = { Text(kw.keyword, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, letterSpacing = 0.5.sp) },
+                        leadingContent = { Icon(Icons.Default.Block, contentDescription = "Blocked", tint = Color(0xFFCF6679).copy(alpha = 0.7f), modifier = Modifier.size(20.dp)) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    )
+                }
             }
         }
     }
